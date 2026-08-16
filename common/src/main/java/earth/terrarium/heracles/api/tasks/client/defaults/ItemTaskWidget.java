@@ -5,7 +5,6 @@ import com.teamresourceful.resourcefullib.client.scissor.ScissorBoxStack;
 import com.teamresourceful.resourcefullib.client.screens.CursorScreen;
 import com.teamresourceful.resourcefullib.client.utils.CursorUtils;
 import com.teamresourceful.resourcefullib.client.utils.ScreenUtils;
-import com.teamresourceful.resourcefullib.common.codecs.predicates.NbtPredicate;
 import earth.terrarium.heracles.api.client.ItemDisplayWidget;
 import earth.terrarium.heracles.api.client.WidgetUtils;
 import earth.terrarium.heracles.api.client.theme.QuestScreenTheme;
@@ -50,13 +49,7 @@ public final class ItemTaskWidget implements ItemDisplayWidget {
         this.task = task;
         this.progress = progress;
         this.stacks = task.item().getValue().map(
-            item -> {
-                ItemStack stack = item.getDefaultInstance();
-                if (task.components().asPatch() != null) {
-                    stack.applyComponents(task.components().asPatch());
-                }
-                return List.of(stack);
-            },
+            item -> List.of(item.getDefaultInstance()),
             tag -> ModUtils.getValue(Registries.ITEM, tag).stream().map(ItemStack::new).toList()
         );
     }

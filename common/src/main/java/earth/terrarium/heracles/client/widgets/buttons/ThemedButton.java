@@ -1,6 +1,5 @@
 package earth.terrarium.heracles.client.widgets.buttons;
 
-import dev.emi.emi.api.widget.Widget;
 import earth.terrarium.heracles.Heracles;
 import earth.terrarium.heracles.api.client.theme.GenericTheme;
 import net.minecraft.client.gui.components.Button;
