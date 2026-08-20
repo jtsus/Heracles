@@ -11,6 +11,7 @@ import earth.terrarium.heracles.api.quests.QuestDisplayStatus;
 import earth.terrarium.heracles.client.HeraclesClient;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
 import earth.terrarium.heracles.client.handlers.DisplayConfig;
+import earth.terrarium.heracles.client.ui.QuestChrome;
 import earth.terrarium.heracles.client.ui.QuestTab;
 import earth.terrarium.heracles.client.utils.BackgroundTextureManager;
 import earth.terrarium.heracles.common.handlers.quests.GroupSettings;
@@ -197,8 +198,7 @@ public class QuestsWidget extends BaseParentWidget {
                 this.minX, this.minY, this.maxX, this.maxY
             );
         }
-        graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + 2, 0xFF585659);
-        graphics.renderOutline(this.getX(), this.getY() + 2, this.getX() + this.getWidth() + this.width - 1, this.getY() + this.getHeight() - 11, 0xFF1E1E1F);
+        graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + 1, QuestChrome.ACCENT);
     }
 
     private void renderGrid(GuiGraphics graphics) {

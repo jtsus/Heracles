@@ -34,35 +34,16 @@ public class QuestsScreen extends AbstractQuestsScreen {
     public QuestsScreen(Screen parent, QuestsContent content) {
         super(parent, content);
         this.handler = new QuestActionHandler() {
-
-            private ClientQuests.QuestEntry selected;
-            private long lastClick;
-
             @Override
             public boolean onLeftClick(double mouseX, double mouseY, @Nullable QuestWidget widget) {
                 if (widget == null) {
                     quests.select(ModUtils.predicateFalse());
                     return false;
                 }
-                ClientQuests.QuestEntry entry = widget.entry();
-                if (entry.equals(selected) && System.currentTimeMillis() - lastClick < 500) {
-                    open();
-                } else {
-                    selected = entry;
-                    lastClick = System.currentTimeMillis();
-                    quests.select(questWidget -> questWidget == widget);
-                }
-
+                quests.select(questWidget -> questWidget == widget);
+                NetworkHandler.CHANNEL.sendToServer(new OpenQuestPacket(content.group(), widget.entry().key()));
                 return true;
             }
-
-            private void open() {
-                if (this.selected == null) return;
-                NetworkHandler.CHANNEL.sendToServer(new OpenQuestPacket(content.group(), this.selected.key()));
-                this.selected = null;
-                this.lastClick = 0;
-            }
-
         };
     }
 

@@ -21,6 +21,9 @@ public abstract class Overlay extends BaseCursorScreen {
     @Override
     public void added() {
         super.added();
+        if (this.background == null) {
+            return;
+        }
         ComponentPath path = this.background.getCurrentFocusPath();
         if (path == null) return;
         path.applyFocus(false);
@@ -28,15 +31,22 @@ public abstract class Overlay extends BaseCursorScreen {
 
     @Override
     protected void repositionElements() {
-        this.background.resize(Minecraft.getInstance(), this.width, this.height);
+        if (this.background != null) {
+            this.background.resize(Minecraft.getInstance(), this.width, this.height);
+        }
         super.repositionElements();
     }
 
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.background.render(graphics, -1, -1, partialTick);
-        graphics.flush();
-        RenderSystem.clear(256, Minecraft.ON_OSX);
-        //renderBackground(graphics, mouseX, mouseY, partialTick);
+        if (this.background != null) {
+            this.background.render(graphics, -1, -1, partialTick);
+            graphics.flush();
+            RenderSystem.clear(256, Minecraft.ON_OSX);
+        }
+    }
+
+    public Screen background() {
+        return this.background;
     }
 
     @Override

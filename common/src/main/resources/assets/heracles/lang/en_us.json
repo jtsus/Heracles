@@ -57,6 +57,8 @@
     "gui.heracles.quests.import": "Import Quests",
     "gui.heracles.quests.view": "View Quests",
     "gui.heracles.quests.overview": "Overview",
+    "gui.heracles.quests.requirements": "Requirements",
+    "gui.heracles.quests.no_description": "No additional details.",
     "gui.heracles.quests.claimable": "Unclaimed Rewards",
     "gui.heracles.quests.title": "Title",
     "gui.heracles.quests.position": "Position",

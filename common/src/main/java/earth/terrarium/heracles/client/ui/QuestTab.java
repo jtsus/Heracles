@@ -2,10 +2,8 @@ package earth.terrarium.heracles.client.ui;
 
 import earth.terrarium.heracles.api.quests.Quest;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
+import earth.terrarium.heracles.client.ui.modals.QuestViewModal;
 import earth.terrarium.heracles.client.ui.quest.AbstractQuestScreen;
-import earth.terrarium.heracles.client.ui.quest.DescriptionQuestScreen;
-import earth.terrarium.heracles.client.ui.quest.RewardsQuestScreen;
-import earth.terrarium.heracles.client.ui.quest.TasksQuestScreen;
 import earth.terrarium.heracles.client.ui.quest.editng.EditDescriptionQuestScreen;
 import earth.terrarium.heracles.client.ui.quest.editng.EditRewardsQuestScreen;
 import earth.terrarium.heracles.client.ui.quest.editng.EditTasksQuestScreen;
@@ -15,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 public enum QuestTab {
     OVERVIEW,
@@ -64,23 +61,21 @@ public enum QuestTab {
 
     public void open(QuestContent content) {
         Screen parent = Minecraft.getInstance().screen;
+        if (parent instanceof QuestViewModal modal) {
+            parent = modal.background();
+        }
         if (parent instanceof AbstractQuestScreen screen) {
             parent = screen.parent();
         }
-        Screen screen;
         if (QuestTab.isEditing()) {
-            screen = switch (this) {
+            Screen screen = switch (this) {
                 case TASKS -> new EditTasksQuestScreen(parent, content);
                 case REWARDS -> new EditRewardsQuestScreen(parent, content);
                 case OVERVIEW -> new EditDescriptionQuestScreen(parent, content);
             };
-        } else {
-            screen = switch (this) {
-                case TASKS -> new TasksQuestScreen(parent, content);
-                case REWARDS -> new RewardsQuestScreen(parent, content);
-                case OVERVIEW -> new DescriptionQuestScreen(parent, content);
-            };
+            Minecraft.getInstance().setScreen(screen);
+            return;
         }
-        Minecraft.getInstance().setScreen(screen);
+        Minecraft.getInstance().setScreen(new QuestViewModal(parent, content));
     }
 }
