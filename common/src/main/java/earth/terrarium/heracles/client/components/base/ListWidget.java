@@ -4,6 +4,7 @@ import earth.terrarium.heracles.Heracles;
 import earth.terrarium.heracles.client.utils.UIUtils;
 import earth.terrarium.olympus.client.components.base.BaseParentWidget;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -78,7 +79,7 @@ public class ListWidget extends BaseParentWidget {
         graphics.pose().translate(0, 0, 300);
 
         for (Item item : items) {
-            item.setWidth(actualWidth);
+            item.setListItemWidth(actualWidth);
             item.setX(getX());
             item.setY(y);
 
@@ -174,7 +175,7 @@ public class ListWidget extends BaseParentWidget {
         this.lastHeight = 0;
         int y = this.getY() - (int) scroll;
         for (Item item : items) {
-            item.setWidth(actualWidth);
+            item.setListItemWidth(actualWidth);
             item.setX(getX());
             item.setY(y);
             this.lastHeight += item.getHeight();
@@ -198,6 +199,16 @@ public class ListWidget extends BaseParentWidget {
             return LayoutElement.super.getRectangle();
         }
 
-        void setWidth(int width);
+        /**
+         * Must not be named {@code setWidth}: that collides with vanilla
+         * {@link AbstractWidget#setWidth(int)}, which Fabric remaps to intermediary. The
+         * interface method would stay {@code setWidth} and {@code GroupEntry} would throw
+         * {@link AbstractMethodError} when the quests sidebar is built.
+         */
+        default void setListItemWidth(int width) {
+            if (this instanceof AbstractWidget widget) {
+                widget.setWidth(width);
+            }
+        }
     }
 }
