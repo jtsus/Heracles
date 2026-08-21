@@ -3,10 +3,16 @@
   "id": "heracles",
   "version": "${version}",
   "name": "Heracles",
-  "description": "Heracles is a comprehensive questing mod that allows pack makers to create tree style quests that can be distributed via the config folder for users to play and complete.",
+  "description": "Heracles is a comprehensive questing mod that allows pack makers to create tree style quests that can be distributed via the config folder for users to play and complete. Eternia fork source: https://github.com/jtsus/Heracles",
   "authors": [
-    "ThatGravyBoat"
+    "ThatGravyBoat",
+    "Justin"
   ],
+  "contact": {
+    "homepage": "https://github.com/jtsus/Heracles",
+    "sources": "https://github.com/jtsus/Heracles",
+    "issues": "https://github.com/jtsus/Heracles/issues"
+  },
   "icon": "assets/heracles/icon.png",
   "license": "MIT",
   "environment": "*",
