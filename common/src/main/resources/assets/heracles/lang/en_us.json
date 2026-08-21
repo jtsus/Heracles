@@ -43,6 +43,8 @@
     "gui.heracles.rewards.select_claim": "Claim this Reward",
     "gui.heracles.rewards.claim": "Claim Rewards",
     "gui.heracles.rewards.claim_reward": "Claim",
+    "gui.heracles.rewards.collect": "Collect",
+    "gui.heracles.rewards.collected": "Collected",
     "gui.heracles.tasks.title": "Tasks",
     "gui.heracles.tasks.progress": "Task Completion",
     "gui.heracles.tasks.create": "Create Task",

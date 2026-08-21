@@ -22,9 +22,25 @@ public class OffsetBounds {
         setBounds(MIN.x, MIN.y, MAX.x, MAX.y);
     }
 
-    public void center(int minX, int minY, int maxX, int maxY) {
-        offset.x = (maxX - minX) / 2;
-        offset.y = (maxY - minY) / 2;
+    public void set(int x, int y) {
+        offset.x = Mth.clamp(x, minX, maxX);
+        offset.y = Mth.clamp(y, minY, maxY);
+    }
+
+    public void focus(int x, int y) {
+        offset.x = -x;
+        offset.y = -y;
+    }
+
+    public void clampOffset() {
+        offset.x = Mth.clamp(offset.x, minX, maxX);
+        offset.y = Mth.clamp(offset.y, minY, maxY);
+        if (minX > maxX) {
+            offset.x = minX;
+        }
+        if (minY > maxY) {
+            offset.y = minY;
+        }
     }
 
     public void setBounds(int minX, int minY, int maxX, int maxY) {

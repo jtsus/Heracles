@@ -11,7 +11,6 @@ import earth.terrarium.heracles.api.quests.QuestDisplayStatus;
 import earth.terrarium.heracles.client.HeraclesClient;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
 import earth.terrarium.heracles.client.handlers.DisplayConfig;
-import earth.terrarium.heracles.client.ui.QuestChrome;
 import earth.terrarium.heracles.client.ui.QuestTab;
 import earth.terrarium.heracles.client.utils.BackgroundTextureManager;
 import earth.terrarium.heracles.common.handlers.quests.GroupSettings;
@@ -55,6 +54,8 @@ public class QuestsWidget extends BaseParentWidget {
     private final Map<String, ClientQuests.QuestEntry> quests = new HashMap<>();
 
     private int minX, minY, maxX, maxY;
+    private int contentMinX, contentMinY, contentMaxX, contentMaxY;
+    private int focusX, focusY;
     private int dockedMinimapX, dockedMinimapY, dockedMinimapWidth, dockedMinimapHeight;
 
     public QuestsWidget(int width, int height, QuestsContent content, QuestActionHandler handler) {
@@ -98,21 +99,25 @@ public class QuestsWidget extends BaseParentWidget {
             .map(display -> display.groups().get(this.group))
             .mapToInt(display -> display.position().y).toArray();
 
-        boolean center = !HeraclesClient.lastGroup.equalsIgnoreCase(content.group());
+        boolean recenter = !HeraclesClient.lastGroup.equalsIgnoreCase(content.group());
 
-        this.minX = IntStream.of(xs).min().orElse(0) - 100;
-        this.minY = IntStream.of(ys).min().orElse(0) - 100;
-        this.maxX = IntStream.of(xs).max().orElse(0) + 100;
-        this.maxY = IntStream.of(ys).max().orElse(0) + 100;
+        this.contentMinX = IntStream.of(xs).min().orElse(0);
+        this.contentMinY = IntStream.of(ys).min().orElse(0);
+        this.contentMaxX = IntStream.of(xs).max().orElse(0);
+        this.contentMaxY = IntStream.of(ys).max().orElse(0);
+        this.minX = this.contentMinX - 100;
+        this.minY = this.contentMinY - 100;
+        this.maxX = this.contentMaxX + 100;
+        this.maxY = this.contentMaxY + 100;
 
-        if (isEditing) {
-            BOUNDS.setBounds();
-        } else {
-            if (center) {
-                BOUNDS.center(this.minX, this.minY, this.maxX, this.maxY);
-            }
-            BOUNDS.setBounds();
+        Vector2i first = firstQuestMapPos();
+        this.focusX = first.x;
+        this.focusY = first.y;
+
+        if (recenter) {
+            BOUNDS.focus(this.focusX, this.focusY);
         }
+        clampPan();
 
         HeraclesClient.lastGroup = content.group();
     }
@@ -198,7 +203,7 @@ public class QuestsWidget extends BaseParentWidget {
                 this.minX, this.minY, this.maxX, this.maxY
             );
         }
-        graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + 1, QuestChrome.ACCENT);
+        graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + 2, 0xFF585659);
     }
 
     private void renderGrid(GuiGraphics graphics) {
@@ -340,6 +345,7 @@ public class QuestsWidget extends BaseParentWidget {
         } else {
             BOUNDS.add(0, (int) scrollY * 10);
         }
+        clampPan();
         return true;
     }
 
@@ -441,6 +447,7 @@ public class QuestsWidget extends BaseParentWidget {
         double scaledDragY = dragY / scale;
         if (this.handler.onDrag(toScaledX(mouseX), toScaledY(mouseY), button, scaledDragX, scaledDragY).isUndefined()) {
             BOUNDS.drag(mouseX, mouseY);
+            clampPan();
         }
         return true;
     }
@@ -452,6 +459,59 @@ public class QuestsWidget extends BaseParentWidget {
 
     public String group() {
         return this.group;
+    }
+
+    public Vector2i firstQuestMapPos() {
+        Vector2i best = null;
+        boolean bestRoot = false;
+        for (ClientQuests.QuestEntry entry : this.quests.values()) {
+            boolean root = entry.dependencies().stream()
+                .noneMatch(dep -> dep.value().display().groups().containsKey(this.group));
+            Vector2i pos = entry.value().display().position(this.group);
+            if (best == null
+                || (root && !bestRoot)
+                || (root == bestRoot && (pos.x < best.x || (pos.x == best.x && pos.y < best.y)))) {
+                best = pos;
+                bestRoot = root;
+            }
+        }
+        return best == null ? new Vector2i() : new Vector2i(best);
+    }
+
+    public void panBy(int dx, int dy) {
+        BOUNDS.add(dx, dy);
+        clampPan();
+    }
+
+    public boolean anyQuestInView() {
+        if (this.quests.isEmpty()) {
+            return true;
+        }
+        float halfW = this.getWidth() / (2f * scale);
+        float halfH = this.getHeight() / (2f * scale);
+        int left = BOUNDS.x() + this.contentMinX;
+        int right = BOUNDS.x() + this.contentMaxX;
+        int top = BOUNDS.y() + this.contentMinY;
+        int bottom = BOUNDS.y() + this.contentMaxY;
+        return right >= -halfW && left <= halfW && bottom >= -halfH && top <= halfH;
+    }
+
+    private void clampPan() {
+        float halfW = Math.max(24f, this.getWidth() / (2f * scale));
+        float halfH = Math.max(24f, this.getHeight() / (2f * scale));
+        int pad = 32;
+        int minOffsetX = Math.round(-halfW + pad - this.contentMaxX);
+        int maxOffsetX = Math.round(halfW - pad - this.contentMinX);
+        int minOffsetY = Math.round(-halfH + pad - this.contentMaxY);
+        int maxOffsetY = Math.round(halfH - pad - this.contentMinY);
+        if (minOffsetX > maxOffsetX) {
+            minOffsetX = maxOffsetX = -this.focusX;
+        }
+        if (minOffsetY > maxOffsetY) {
+            minOffsetY = maxOffsetY = -this.focusY;
+        }
+        BOUNDS.setBounds(minOffsetX, minOffsetY, maxOffsetX, maxOffsetY);
+        BOUNDS.clampOffset();
     }
 
     public void select(Predicate<QuestWidget> predicate) {

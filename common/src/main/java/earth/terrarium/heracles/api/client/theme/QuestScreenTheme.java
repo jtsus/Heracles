@@ -22,20 +22,20 @@ public record QuestScreenTheme(
 ) {
 
     public static final QuestScreenTheme DEFAULT = new QuestScreenTheme(
-        new Color(0xF3EEE4),
-        new Color(0x8FB4BA),
-        new Color(0x3DD6E8),
-        new Color(0xA8C4C8),
+        new Color(0xFFFFFF),
+        new Color(0x808080),
+        new Color(0xFFFFFF),
+        new Color(0xA0A0A0),
         new Color(0xD0D0D0),
         new Color(0x707070),
-        new Color(0xF3EEE4),
-        new Color(0x8FB4BA),
+        new Color(0xFFFFFF),
+        new Color(0x808080),
         new Color(0x1E1E1E),
-        new Color(0xF3EEE4),
-        new Color(0x3DD6E8),
-        new Color(0x8FB4BA),
-        new Color(0xF3EEE4),
-        new Color(0x3DD6E8)
+        new Color(0xFFFFFF),
+        new Color(0xFFFFFF),
+        new Color(0x696969),
+        new Color(0xFFFFFF),
+        new Color(0xEEEEEE)
     );
 
     public static final Codec<QuestScreenTheme> CODEC = RecordCodecBuilder.create(instance -> instance.group(

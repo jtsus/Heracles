@@ -8,7 +8,6 @@ import earth.terrarium.heracles.client.components.lists.HeadingListEntry;
 import earth.terrarium.heracles.client.components.lists.ListEntry;
 import earth.terrarium.heracles.client.components.lists.QuestList;
 import earth.terrarium.heracles.client.components.lists.QuestValueEntry;
-import earth.terrarium.heracles.client.components.lists.rewards.entries.DependentRewardEntry;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
 import earth.terrarium.heracles.common.menus.quest.QuestContent;
 import net.minecraft.network.chat.Component;
@@ -22,7 +21,6 @@ public class RewardsList extends QuestList<QuestReward<?>> {
     private static final ListEntry<QuestReward<?>> LOCKED = new HeadingListEntry<>(Component.translatable("quest.heracles.locked"), UIConstants.LOCKED_HEADING_LEFT, UIConstants.LOCKED_HEADING_RIGHT);
     private static final ListEntry<QuestReward<?>> AVAILABLE = new HeadingListEntry<>(Component.translatable("quest.heracles.available"), UIConstants.CLAIMABLE_HEADING_LEFT, UIConstants.CLAIMABLE_HEADING_RIGHT);
     private static final ListEntry<QuestReward<?>> CLAIMED = new HeadingListEntry<>(Component.translatable("quest.heracles.claimed"), UIConstants.CLAIMED_HEADING_LEFT, UIConstants.CLAIMED_HEADING_RIGHT);
-    private static final ListEntry<QuestReward<?>> DEPENDENTS = new HeadingListEntry<>(Component.literal("Dependents"), UIConstants.DEPENDENTS_HEADING_LEFT, UIConstants.DEPENDENTS_HEADING_RIGHT);
 
     public RewardsList(@Nullable QuestList<QuestReward<?>> list, int width, int height, QuestContent content) {
         super(list, width, height, content);
@@ -39,48 +37,51 @@ public class RewardsList extends QuestList<QuestReward<?>> {
 
     @Override
     public void update(String group) {
-        ClientQuests.QuestEntry entry = ClientQuests.get(this.content().id()).orElse(null);
-        if (entry == null) return;
+        this.clear();
+        collect(this.content(), true).forEach(this::add);
+    }
+
+    /** Reward rows without Locked/Available/Claimed headings. */
+    public static List<ListEntry<QuestReward<?>>> modalEntries(QuestContent content) {
+        return collect(content, false);
+    }
+
+    private static List<ListEntry<QuestReward<?>>> collect(QuestContent content, boolean headings) {
+        List<ListEntry<QuestReward<?>>> out = new ArrayList<>();
+        ClientQuests.QuestEntry entry = ClientQuests.get(content.id()).orElse(null);
+        if (entry == null) {
+            return out;
+        }
 
         List<ListEntry<QuestReward<?>>> locked = new ArrayList<>();
         List<ListEntry<QuestReward<?>>> available = new ArrayList<>();
         List<ListEntry<QuestReward<?>>> claimed = new ArrayList<>();
-        List<ListEntry<QuestReward<?>>> dependents = new ArrayList<>();
 
         for (var reward : entry.value().rewards().values()) {
             DisplayWidget widget = QuestRewardWidgets.create(reward);
             if (widget == null) continue;
-            ListEntry<QuestReward<?>> rewardsEntry = create(reward, widget);
-            if (this.content().progress().canClaim(reward.id())) {
+            ListEntry<QuestReward<?>> rewardsEntry = new QuestValueEntry<>(reward, widget);
+            if (content.progress().canClaim(reward.id())) {
                 available.add(rewardsEntry);
-            } else if (this.content().progress().isComplete()) {
+            } else if (content.progress().isComplete()) {
                 claimed.add(rewardsEntry);
             } else {
                 locked.add(rewardsEntry);
             }
         }
 
-        for (ClientQuests.QuestEntry child : entry.dependents()) {
-            if (!child.value().display().groups().containsKey(group)) continue;
-            dependents.add(new DependentRewardEntry(child.value()));
+        if (headings && !locked.isEmpty()) {
+            out.add(LOCKED);
         }
-
-        this.clear();
-        if (!locked.isEmpty()) {
-            this.add(LOCKED);
-            locked.forEach(this::add);
+        out.addAll(locked);
+        if (headings && !available.isEmpty()) {
+            out.add(AVAILABLE);
         }
-        if (!available.isEmpty()) {
-            this.add(AVAILABLE);
-            available.forEach(this::add);
+        out.addAll(available);
+        if (headings && !claimed.isEmpty()) {
+            out.add(CLAIMED);
         }
-        if (!claimed.isEmpty()) {
-            this.add(CLAIMED);
-            claimed.forEach(this::add);
-        }
-        if (!dependents.isEmpty()) {
-            this.add(DEPENDENTS);
-            dependents.forEach(this::add);
-        }
+        out.addAll(claimed);
+        return out;
     }
 }

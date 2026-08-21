@@ -176,6 +176,15 @@ public final class ConstantComponents {
 
         @Translate("Claim")
         public static final Component CLAIM_REWARD = Component.translatable("gui.heracles.rewards.claim_reward");
+
+        @Translate("Collect")
+        public static final Component COLLECT = Component.translatable("gui.heracles.rewards.collect");
+
+        @Translate("Collected")
+        public static final Component COLLECTED = Component.translatable("gui.heracles.rewards.collected");
+
+        @Translate("Locked")
+        public static final Component LOCKED = Component.translatable("quest.heracles.locked");
     }
 
     public static class PinnedQuests {

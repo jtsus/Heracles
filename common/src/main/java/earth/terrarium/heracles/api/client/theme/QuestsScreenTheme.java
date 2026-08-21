@@ -11,9 +11,9 @@ public record QuestsScreenTheme(
 ) {
 
     public static final QuestsScreenTheme DEFAULT = new QuestsScreenTheme(
-        new Color(0xF3EEE4),
-        new Color(0xF3EEE4),
-        new Color(0xF3EEE4)
+        new Color(0x404040),
+        new Color(0x404040),
+        new Color(0xFFFFFF)
     );
 
     public static final Codec<QuestsScreenTheme> CODEC = RecordCodecBuilder.create(instance -> instance.group(

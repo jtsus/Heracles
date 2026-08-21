@@ -1,6 +1,7 @@
 package earth.terrarium.heracles.client.components.quest;
 
 import com.teamresourceful.resourcefullib.client.screens.CursorScreen;
+import earth.terrarium.heracles.client.components.base.ListWidget;
 import earth.terrarium.olympus.client.components.base.BaseWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -14,7 +15,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class QuestError extends BaseWidget {
+public class QuestError extends BaseWidget implements ListWidget.Item {
 
     private final String error;
     private Component tooltip;
@@ -74,5 +75,10 @@ public class QuestError extends BaseWidget {
     @Override
     public CursorScreen.Cursor getCursor() {
         return CursorScreen.Cursor.DISABLED;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package earth.terrarium.heracles.client.ui.quests;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import com.teamresourceful.resourcefullib.client.screens.BaseCursorScreen;
 import earth.terrarium.heracles.client.components.base.ListWidget;
@@ -10,7 +11,6 @@ import earth.terrarium.heracles.client.components.string.TextWidget;
 import earth.terrarium.heracles.client.components.widgets.buttons.SpriteButton;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
 import earth.terrarium.heracles.client.handlers.DisplayConfig;
-import earth.terrarium.heracles.client.ui.QuestChrome;
 import earth.terrarium.heracles.client.ui.QuestTab;
 import earth.terrarium.heracles.client.ui.UIConstants;
 import earth.terrarium.heracles.client.ui.modals.CreateGroupModal;
@@ -102,10 +102,7 @@ public abstract class AbstractQuestsScreen extends BaseCursorScreen {
             0, 0,
             s -> s.padding(1)
         );
-        header.addChild(new TextWidget(this.sideBarWidth - 26 - SPACER, 11, ConstantComponents.Groups.GROUPS, Minecraft.getInstance().font)
-            .setColor(QuestChrome.CREAM)
-            .alignLeft()
-            .alignMiddle(), 0, 1);
+        header.addChild(new TextWidget(this.sideBarWidth - 26 - SPACER, 11, ConstantComponents.Groups.GROUPS, Minecraft.getInstance().font), 0, 1);
 
         //add button
         if(QuestTab.isEditing()) {
@@ -210,11 +207,12 @@ public abstract class AbstractQuestsScreen extends BaseCursorScreen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        QuestChrome.sidebar(graphics, 0, 0, this.sideBarWidth, this.height);
-        QuestChrome.headerBar(graphics, 0, 0, this.sideBarWidth, HEADER_HEIGHT + SPACER);
-        QuestChrome.headerBar(graphics, this.sideBarWidth, 0, this.contentWidth, HEADER_HEIGHT + SPACER);
-        graphics.fill(this.sideBarWidth, HEADER_HEIGHT + SPACER, this.width, this.height, QuestChrome.NAVY);
-        graphics.fill(this.sideBarWidth, HEADER_HEIGHT + SPACER, this.sideBarWidth + 1, this.height, QuestChrome.ACCENT_DIM);
+        RenderSystem.enableBlend();
+        UIConstants.blitWithEdge(graphics, UIConstants.SIDEBAR_HEADER, 0, 0, this.sideBarWidth, HEADER_HEIGHT + SPACER, 2);
+        UIConstants.blitWithEdge(graphics, UIConstants.CONTENT_HEADER, this.sideBarWidth, 0, this.contentWidth, HEADER_HEIGHT + SPACER, 2);
+        UIConstants.blitWithEdge(graphics, UIConstants.SIDEBAR, 0, HEADER_HEIGHT + SPACER, this.sideBarWidth, this.height - HEADER_HEIGHT + SPACER, 2);
+        UIConstants.blitWithEdge(graphics, UIConstants.CONTENT, this.sideBarWidth, HEADER_HEIGHT + SPACER, this.contentWidth, this.height - HEADER_HEIGHT + SPACER, 2);
+        UIConstants.blitWithEdge(graphics, UIConstants.GROUPS, 0, HEADER_HEIGHT + SPACER, this.sideBarWidth - SPACER, this.height - HEADER_HEIGHT + SPACER, 2);
     }
 
     @Override

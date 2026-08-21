@@ -116,4 +116,8 @@ public abstract class QuestList<T> extends BaseWidget {
     public QuestContent content() {
         return this.content;
     }
+
+    public List<ListEntry<T>> entries() {
+        return this.entries;
+    }
 }

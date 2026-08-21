@@ -29,6 +29,17 @@ public class ClientUtils {
         return Minecraft.getInstance().screen;
     }
 
+    public static String viewingQuestId() {
+        Screen screen = Minecraft.getInstance().screen;
+        if (screen instanceof earth.terrarium.heracles.client.ui.quest.AbstractQuestScreen questScreen) {
+            return questScreen.content().id();
+        }
+        if (screen instanceof earth.terrarium.heracles.client.ui.modals.QuestViewModal modal) {
+            return modal.content().id();
+        }
+        return null;
+    }
+
     public static MouseClick getMousePos() {
         MouseHandler mouse = Minecraft.getInstance().mouseHandler;
         Window window = Minecraft.getInstance().getWindow();

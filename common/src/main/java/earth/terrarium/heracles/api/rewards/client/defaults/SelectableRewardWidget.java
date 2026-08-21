@@ -6,7 +6,7 @@ import earth.terrarium.heracles.api.quests.QuestIcon;
 import earth.terrarium.heracles.api.rewards.defaults.SelectableReward;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
 import earth.terrarium.heracles.client.ui.modals.SelectRewardsModal;
-import earth.terrarium.heracles.client.ui.quest.AbstractQuestScreen;
+import earth.terrarium.heracles.client.utils.ClientUtils;
 import earth.terrarium.heracles.common.handlers.progress.QuestProgress;
 import earth.terrarium.heracles.common.network.NetworkHandler;
 import earth.terrarium.heracles.common.network.packets.rewards.ClaimSelectableRewardsPacket;
@@ -26,8 +26,8 @@ public record SelectableRewardWidget(SelectableReward reward, String quest, Ques
     private static final String DESC_PLURAL = "reward.heracles.select.desc.plural";
 
     public static SelectableRewardWidget of(SelectableReward reward, boolean interactive) {
-        if (Minecraft.getInstance().screen instanceof AbstractQuestScreen screen) {
-            String id = screen.content().id();
+        String id = ClientUtils.viewingQuestId();
+        if (id != null) {
             return new SelectableRewardWidget(reward, id, ClientQuests.getProgress(id), interactive);
         }
         return new SelectableRewardWidget(reward, "", null, interactive);
@@ -46,6 +46,11 @@ public record SelectableRewardWidget(SelectableReward reward, String quest, Ques
     @Override
     public boolean canClaim() {
         return progress != null && progress.canClaim(reward.id());
+    }
+
+    @Override
+    public boolean isClaimed() {
+        return progress != null && progress.claimedRewards().contains(reward.id());
     }
 
     @Override

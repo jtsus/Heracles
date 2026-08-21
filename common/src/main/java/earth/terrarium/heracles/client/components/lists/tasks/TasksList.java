@@ -40,20 +40,30 @@ public class TasksList extends QuestList<QuestTask<?, ?, ?>> {
 
     @Override
     public void update(String group) {
-        ClientQuests.QuestEntry entry = ClientQuests.get(this.content().id()).orElse(null);
-        if (entry == null) return;
+        this.clear();
+        collect(this.content()).forEach(this::add);
+    }
+
+    public static List<ListEntry<QuestTask<?, ?, ?>>> modalEntries(QuestContent content) {
+        return collect(content);
+    }
+
+    private static List<ListEntry<QuestTask<?, ?, ?>>> collect(QuestContent content) {
+        List<ListEntry<QuestTask<?, ?, ?>>> out = new ArrayList<>();
+        ClientQuests.QuestEntry entry = ClientQuests.get(content.id()).orElse(null);
+        if (entry == null) {
+            return out;
+        }
 
         List<ListEntry<QuestTask<?, ?, ?>>> dependencies = new ArrayList<>();
         List<ListEntry<QuestTask<?, ?, ?>>> inProgress = new ArrayList<>();
         List<ListEntry<QuestTask<?, ?, ?>>> completed = new ArrayList<>();
 
-        QuestContent content = this.content();
-
         for (var task : entry.value().tasks().values()) {
             TaskProgress<?> progress = content.progress().getTask(task);
             DisplayWidget widget = QuestTaskWidgets.create(content.id(), ModUtils.cast(task), progress, content.quests().get(content.id()));
             if (widget == null) continue;
-            ListEntry<QuestTask<?, ?, ?>> taskEntry = create(task, widget);
+            ListEntry<QuestTask<?, ?, ?>> taskEntry = new QuestValueEntry<>(task, widget);
             if (progress.isComplete()) {
                 completed.add(taskEntry);
             } else {
@@ -68,18 +78,18 @@ public class TasksList extends QuestList<QuestTask<?, ?, ?>> {
             dependencies.add(new DependencyTaskEntry(child.value()));
         }
 
-        this.clear();
         if (!dependencies.isEmpty()) {
-            this.add(DEPENDENCIES);
-            dependencies.forEach(this::add);
+            out.add(DEPENDENCIES);
+            out.addAll(dependencies);
         }
         if (!inProgress.isEmpty()) {
-            this.add(IN_PROGRESS);
-            inProgress.forEach(this::add);
+            out.add(IN_PROGRESS);
+            out.addAll(inProgress);
         }
         if (!completed.isEmpty()) {
-            this.add(COMPLETED);
-            completed.forEach(this::add);
+            out.add(COMPLETED);
+            out.addAll(completed);
         }
+        return out;
     }
 }

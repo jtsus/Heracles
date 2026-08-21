@@ -6,7 +6,7 @@ import earth.terrarium.heracles.api.quests.QuestIcon;
 import earth.terrarium.heracles.api.rewards.defaults.ItemReward;
 import earth.terrarium.heracles.client.compat.RecipeViewerHelper;
 import earth.terrarium.heracles.client.handlers.ClientQuests;
-import earth.terrarium.heracles.client.ui.quest.AbstractQuestScreen;
+import earth.terrarium.heracles.client.utils.ClientUtils;
 import earth.terrarium.heracles.common.handlers.progress.QuestProgress;
 import earth.terrarium.heracles.common.network.NetworkHandler;
 import earth.terrarium.heracles.common.network.packets.rewards.ClaimRewardsPacket;
@@ -23,8 +23,8 @@ public record ItemRewardWidget(ItemReward reward, String quest, QuestProgress pr
     private static final String DESC_SINGULAR = "reward.heracles.item.desc.singular";
     private static final String DESC_PLURAL = "reward.heracles.item.desc.plural";
     public static ItemRewardWidget of(ItemReward reward, boolean interactive) {
-        if (Minecraft.getInstance().screen instanceof AbstractQuestScreen screen) {
-            String id = screen.content().id();
+        String id = ClientUtils.viewingQuestId();
+        if (id != null) {
             return new ItemRewardWidget(reward, id, ClientQuests.getProgress(id), interactive);
         }
         return new ItemRewardWidget(reward, "", null, interactive);
@@ -43,6 +43,11 @@ public record ItemRewardWidget(ItemReward reward, String quest, QuestProgress pr
     @Override
     public boolean canClaim() {
         return progress != null && progress.canClaim(reward.id());
+    }
+
+    @Override
+    public boolean isClaimed() {
+        return progress != null && progress.claimedRewards().contains(reward.id());
     }
 
     @Override
